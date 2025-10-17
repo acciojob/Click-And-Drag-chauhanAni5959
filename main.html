@@ -41,51 +41,56 @@ const items = container.querySelectorAll('.item');
 let selectedItem = null;
 let offsetX = 0, offsetY = 0;
 
-// Ensure container is positioned relative for absolute children
+// Make container positioned relatively so items use absolute positions
 container.style.position = 'relative';
 
-items.forEach(item => {
-  item.style.position = 'absolute'; // Make items draggable
+// Arrange cubes in grid-like layout
+const cols = 5;
+const spacing = 20;
+const cubeSize = 200;
+items.forEach((item, index) => {
+  item.style.width = `${cubeSize}px`;
+  item.style.height = `${cubeSize}px`;
 
-  // Initialize item positions based on current location
-  const rect = item.getBoundingClientRect();
-  const containerRect = container.getBoundingClientRect();
+  const row = Math.floor(index / cols);
+  const col = index % cols;
 
-  item.style.left = rect.left - containerRect.left + 'px';
-  item.style.top = rect.top - containerRect.top + 'px';
+  item.style.left = `${col * (cubeSize + spacing)}px`;
+  item.style.top = `${row * (cubeSize + spacing)}px`;
 
+  // Mouse down event for dragging
   item.addEventListener('mousedown', (e) => {
     selectedItem = e.target;
     selectedItem.classList.add('dragging');
 
-    const itemRect = selectedItem.getBoundingClientRect();
+    const rect = selectedItem.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
 
-    offsetX = e.clientX - itemRect.left;
-    offsetY = e.clientY - itemRect.top;
-
-    // Bring dragged element to front
     selectedItem.style.zIndex = 1000;
-
     e.preventDefault();
   });
 });
 
+// Mouse move event
 document.addEventListener('mousemove', (e) => {
   if (!selectedItem) return;
 
   const containerRect = container.getBoundingClientRect();
 
-  // Calculate constrained position inside container
+  // Calculate new position
   let newLeft = e.clientX - containerRect.left - offsetX;
   let newTop = e.clientY - containerRect.top - offsetY;
 
+  // Restrict movement inside container
   newLeft = Math.max(0, Math.min(newLeft, container.clientWidth - selectedItem.offsetWidth));
   newTop = Math.max(0, Math.min(newTop, container.clientHeight - selectedItem.offsetHeight));
 
-  selectedItem.style.left = newLeft + 'px';
-  selectedItem.style.top = newTop + 'px';
+  selectedItem.style.left = `${newLeft}px`;
+  selectedItem.style.top = `${newTop}px`;
 });
 
+// Mouse up event
 document.addEventListener('mouseup', () => {
   if (selectedItem) {
     selectedItem.classList.remove('dragging');
@@ -94,10 +99,9 @@ document.addEventListener('mouseup', () => {
   }
 });
 
-// Prevent default drag behavior on items (optional)
-items.forEach(item => {
-  item.addEventListener('dragstart', e => e.preventDefault());
-});
+// Prevent default drag behavior
+items.forEach(item => item.addEventListener('dragstart', e => e.preventDefault()));
+
 
 </script>
 
