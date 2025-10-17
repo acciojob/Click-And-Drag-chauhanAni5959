@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Click and Drag</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="items">
@@ -35,75 +35,64 @@
   </div>
 
 <script>
-const container = document.querySelector('.items');
-const items = container.querySelectorAll('.item');
+  const container = document.querySelector('.items');
+  const items = container.querySelectorAll('.item');
 
-let selectedItem = null;
-let offsetX = 0, offsetY = 0;
+  let selectedItem = null;
+  let offsetX = 0, offsetY = 0;
 
-// Make container positioned relatively so items use absolute positions
-container.style.position = 'relative';
+  container.style.position = 'relative';
 
-// Arrange cubes in grid-like layout
-const cols = 5;
-const spacing = 20;
-const cubeSize = 200;
-items.forEach((item, index) => {
-  item.style.width = `${cubeSize}px`;
-  item.style.height = `${cubeSize}px`;
+  const cols = 5;
+  const spacing = 20;
+  const cubeSize = 200;
+  items.forEach((item, index) => {
+    item.style.width = `${cubeSize}px`;
+    item.style.height = `${cubeSize}px`;
 
-  const row = Math.floor(index / cols);
-  const col = index % cols;
+    const row = Math.floor(index / cols);
+    const col = index % cols;
 
-  item.style.left = `${col * (cubeSize + spacing)}px`;
-  item.style.top = `${row * (cubeSize + spacing)}px`;
+    item.style.left = `${col * (cubeSize + spacing)}px`;
+    item.style.top = `${row * (cubeSize + spacing)}px`;
 
-  // Mouse down event for dragging
-  item.addEventListener('mousedown', (e) => {
-    selectedItem = e.target;
-    selectedItem.classList.add('dragging');
+    item.addEventListener('mousedown', (e) => {
+      selectedItem = e.target;
+      selectedItem.classList.add('dragging');
 
-    const rect = selectedItem.getBoundingClientRect();
-    offsetX = e.clientX - rect.left;
-    offsetY = e.clientY - rect.top;
+      const rect = selectedItem.getBoundingClientRect();
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
 
-    selectedItem.style.zIndex = 1000;
-    e.preventDefault();
+      selectedItem.style.zIndex = 1000;
+      e.preventDefault();
+    });
   });
-});
 
-// Mouse move event
-document.addEventListener('mousemove', (e) => {
-  if (!selectedItem) return;
+  document.addEventListener('mousemove', (e) => {
+    if (!selectedItem) return;
 
-  const containerRect = container.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    let newLeft = e.clientX - containerRect.left - offsetX;
+    let newTop = e.clientY - containerRect.top - offsetY;
 
-  // Calculate new position
-  let newLeft = e.clientX - containerRect.left - offsetX;
-  let newTop = e.clientY - containerRect.top - offsetY;
+    newLeft = Math.max(0, Math.min(newLeft, container.clientWidth - selectedItem.offsetWidth));
+    newTop = Math.max(0, Math.min(newTop, container.clientHeight - selectedItem.offsetHeight));
 
-  // Restrict movement inside container
-  newLeft = Math.max(0, Math.min(newLeft, container.clientWidth - selectedItem.offsetWidth));
-  newTop = Math.max(0, Math.min(newTop, container.clientHeight - selectedItem.offsetHeight));
+    selectedItem.style.left = `${newLeft}px`;
+    selectedItem.style.top = `${newTop}px`;
+  });
 
-  selectedItem.style.left = `${newLeft}px`;
-  selectedItem.style.top = `${newTop}px`;
-});
+  document.addEventListener('mouseup', () => {
+    if (selectedItem) {
+      selectedItem.classList.remove('dragging');
+      selectedItem.style.zIndex = '';
+      selectedItem = null;
+    }
+  });
 
-// Mouse up event
-document.addEventListener('mouseup', () => {
-  if (selectedItem) {
-    selectedItem.classList.remove('dragging');
-    selectedItem.style.zIndex = '';
-    selectedItem = null;
-  }
-});
-
-// Prevent default drag behavior
-items.forEach(item => item.addEventListener('dragstart', e => e.preventDefault()));
-
-
+  items.forEach(item => item.addEventListener('dragstart', e => e.preventDefault()));
 </script>
 
-  </body>
+</body>
 </html>
